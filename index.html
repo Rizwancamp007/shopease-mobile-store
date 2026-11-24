@@ -298,7 +298,11 @@ body{background:#eef3f0!important;margin:0}
 .wrap>*:not(.split){display:none!important} .wrap{max-width:none!important;padding:0!important}
 .split{display:block!important;padding:24px 10px!important;max-width:none!important}
 .phone-col{position:static!important;width:100%!important;max-width:410px!important;margin:0 auto!important}
-.badge-tag,[class*="pattern-tag"]{}
+html,body{height:100%;overflow:hidden}
+.split{padding:12px 10px!important}
+.split{padding:0!important;height:100vh;display:flex!important;align-items:flex-start;justify-content:center}
+.phone-col{transform-origin:top center;margin-top:12px!important}
+
 </style></head>
 <body>
 <div class="wrap"><h1 style="display:none"></h1>
@@ -938,5 +942,5 @@ body{background:#eef3f0!important;margin:0}
   });
 })();
 </script>
-</body>
+<script>(function(){function fit(){var c=document.querySelector('.phone-col');c.style.zoom=1;var h=c.offsetHeight,w=c.offsetWidth;var k=Math.min(1,(window.innerHeight-24)/h,(window.innerWidth-16)/w);c.style.zoom=k;}window.addEventListener('resize',fit);window.addEventListener('load',fit);fit();})();</script></body>
 </html>
