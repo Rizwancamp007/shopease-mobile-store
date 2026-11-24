@@ -1,7 +1,7 @@
-# ShopEase – Mobile Store UI
+# ShopEase
 
-A mobile e-commerce app interface built for the HCI lab task on UI design patterns.
+Mobile shopping app prototype made for my HCI lab task on UI design patterns.
 
-Patterns used: Home Link, Carousel, Tag, Lazy Registration, Breadcrumbs, Thumbnail, Steps Left, Good Defaults, Input Feedback, Password Strength Meter, Captcha.
+Live: https://rizwancamp007.github.io/shopease-mobile-store/
 
-Built with plain HTML, CSS and JavaScript. Open `index.html` or the live page.
+Screens: Home, Product, Checkout, Account. Built with plain HTML, CSS and JavaScript.
