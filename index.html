@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>ShopEase – Mobile Store Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#edf2ef; --surface:#ffffff; --surface-2:#e2eae5; --ink:#12211c; --ink-2:#43554e;
+    --teal:#0b6b5a; --teal-dark:#084f43; --amber:#b96a00; --line:#c9d6cf;
+    --chip:#dce8e1; --good:#0b6b5a; --warn:#b96a00; --bad:#b3372a;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0d1512; --surface:#16211c; --surface-2:#1d2c25; --ink:#e9f2ed; --ink-2:#a9bcb2;
+      --teal:#3ec9a7; --teal-dark:#3ec9a7; --amber:#f0a832; --line:#2c4036;
+      --chip:#22362c; --good:#3ec9a7; --warn:#f0a832; --bad:#ff8a7a;
+      color-scheme: dark;
+    }
+  }
+  html{ scroll-behavior:smooth; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,sans-serif; font-size:16px; line-height:1.55; }
+  h1,h2,h3{ font-family:"Bricolage Grotesque","Manrope",sans-serif; line-height:1.12; margin:0; }
+  p{ margin:0; }
+  button{ font-family:inherit; cursor:pointer; }
+  button, [role="button"], select, summary, input:not([type="checkbox"],[type="radio"]){ min-height:2.25rem; }
+  a{ color:var(--teal-dark); }
+  .mono{ font-family:"IBM Plex Mono",monospace; }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:28px 20px 64px; }
+
+  /* ---------- Intro ---------- */
+  .meta-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .meta-pill{ background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:7px 13px; font-size:13px; font-weight:700; color:var(--ink-2); }
+  .meta-pill strong{ color:var(--ink); }
+  .intro h1{ font-size:clamp(34px,5.4vw,58px); font-weight:800; letter-spacing:-.01em; max-width:16ch; }
+  .intro h1 .accent{ color:var(--teal); }
+  .intro .lede{ margin-top:14px; font-size:17.5px; color:var(--ink-2); max-width:68ch; }
+  .intro .lede strong{ color:var(--ink); }
+  .source-line{ margin-top:16px; font-size:13.5px; color:var(--ink-2); border-left:3px solid var(--amber); padding-left:12px; max-width:72ch; }
+
+  /* ---------- Main split ---------- */
+  .split{ display:grid; grid-template-columns:400px 1fr; gap:36px; margin-top:36px; align-items:start; }
+  @media (max-width:900px){ .split{ grid-template-columns:1fr; } }
+
+  /* ---------- Phone ---------- */
+  .phone-col{ position:sticky; top:18px; }
+  @media (max-width:900px){ .phone-col{ position:static; margin:0 auto; width:100%; max-width:400px; } }
+  .phone{
+    width:100%; max-width:384px; margin:0 auto; background:#0c0f0e; border-radius:44px; padding:11px;
+    box-shadow:0 24px 50px rgba(10,30,24,.28), 0 4px 12px rgba(10,30,24,.18);
+  }
+  .phone-screen{ background:#f6f8f7; color:#14201c; border-radius:34px; overflow:hidden; display:flex; flex-direction:column; height:720px; }
+  @media (max-width:480px){ .phone-screen{ height:660px; } }
+  .notch{ text-align:center; font-size:11px; font-weight:700; color:#5a6b64; padding:7px 0 3px; letter-spacing:.04em; }
+  .phone-scroll{ overflow-y:auto; flex:1; scrollbar-width:thin; }
+  .screen{ display:none; padding:0 16px 18px; }
+  .screen.active{ display:block; }
+
+  /* phone app bar */
+  .appbar{ display:flex; align-items:center; justify-content:space-between; padding:6px 2px 10px; }
+  .logo{ font-family:"Bricolage Grotesque",sans-serif; font-weight:800; font-size:21px; color:#0b6b5a; background:none; border:none; padding:6px 4px; text-align:left; }
+  .logo span{ color:#e4572e; }
+  .appbar-icons{ display:flex; gap:6px; }
+  .icon-btn{ width:41px; height:41px; border-radius:12px; border:1px solid #d8e2dc; background:#fff; font-size:16px; display:grid; place-items:center; color:#14201c; }
+  .cart-badge{ position:relative; }
+  .cart-badge b{ position:absolute; top:-6px; right:-6px; background:#e4572e; color:#fff; font-size:10.5px; min-width:19px; height:19px; border-radius:999px; display:grid; place-items:center; padding:0 4px; }
+
+  .searchbar{ display:flex; gap:8px; margin-bottom:12px; }
+  .searchbar input{ flex:1; border:1.5px solid #d8e2dc; border-radius:12px; padding:9px 12px; font-size:14px; font-family:inherit; background:#fff; color:#14201c; min-height:40px; }
+  .searchbar button{ background:#0b6b5a; color:#fff; border:none; border-radius:12px; padding:0 15px; font-weight:800; font-size:14px; }
+
+  .guest-banner{ background:#fdf3e0; border:1px solid #f0d9a8; border-radius:14px; padding:11px 13px; font-size:13px; margin-bottom:14px; color:#5c430a; }
+  .guest-banner strong{ display:block; font-size:13.5px; color:#3d2c04; }
+  .guest-banner button{ margin-top:7px; background:#fff; border:1.5px solid #b96a00; color:#8a5200; border-radius:9px; padding:5px 12px; font-weight:800; font-size:12.5px; min-height:36px; }
+
+  .sec-head{ display:flex; align-items:baseline; justify-content:space-between; margin:16px 0 9px; }
+  .sec-head h3{ font-size:16.5px; color:#14201c; }
+  .pattern-tag{ font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; background:#0b6b5a; color:#fff; border-radius:6px; padding:3px 7px; white-space:nowrap; }
+  .pattern-tag.alt{ background:#b96a00; }
+  .pattern-tag.grey{ background:#5a6b64; }
+
+  /* carousel */
+  .carousel{ display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:6px; scrollbar-width:none; }
+  .carousel::-webkit-scrollbar{ display:none; }
+  .slide{ flex:0 0 86%; scroll-snap-align:start; border-radius:16px; overflow:hidden; position:relative; background:#dce8e1; }
+  .slide img{ width:100%; height:158px; object-fit:cover; display:block; }
+  .slide .slide-cap{ position:absolute; left:0; right:0; bottom:0; background:linear-gradient(transparent, rgba(8,30,24,.82)); color:#fff; padding:22px 13px 10px; }
+  .slide .slide-cap b{ display:block; font-size:15px; }
+  .slide .slide-cap span{ font-size:12.5px; opacity:.92; }
+  .carousel-nav{ display:flex; align-items:center; justify-content:space-between; margin-top:2px; }
+  .dots{ display:flex; gap:6px; }
+  .dot{ width:8px; height:8px; border-radius:999px; background:#c3d2ca; border:none; padding:0; min-height:8px; }
+  .dot.on{ background:#0b6b5a; width:22px; }
+  .car-btns{ display:flex; gap:6px; }
+  .car-btns button{ width:36px; height:36px; border-radius:10px; border:1px solid #d8e2dc; background:#fff; font-size:15px; color:#14201c; }
+
+  /* tags */
+  .tag-row{ display:flex; flex-wrap:wrap; gap:7px; }
+  .tag-chip{ border:1.5px solid #b9cdc2; background:#fff; color:#28443a; border-radius:999px; padding:6px 13px; font-size:13px; font-weight:700; min-height:36px; }
+  .tag-chip.on{ background:#0b6b5a; border-color:#0b6b5a; color:#fff; }
+
+  /* accordion */
+  .acc{ border:1px solid #d8e2dc; border-radius:14px; background:#fff; overflow:hidden; }
+  .acc-item + .acc-item{ border-top:1px solid #e4ebe7; }
+  .acc-head{ width:100%; display:flex; justify-content:space-between; align-items:center; background:none; border:none; padding:12px 14px; font-size:14.5px; font-weight:800; color:#14201c; min-height:44px; text-align:left; }
+  .acc-head .chev{ color:#0b6b5a; font-size:13px; transition:transform .2s; }
+  .acc-item.open .chev{ transform:rotate(180deg); }
+  .acc-body{ display:none; padding:2px 14px 12px; }
+  .acc-item.open .acc-body{ display:block; }
+  .acc-body button{ display:block; width:100%; text-align:left; background:#eef4f1; border:none; border-radius:9px; padding:9px 11px; font-size:13.5px; font-weight:600; color:#28443a; margin-top:6px; min-height:38px; }
+
+  /* product grid / thumbnails */
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+  .p-card{ background:#fff; border:1px solid #e0e8e3; border-radius:15px; overflow:hidden; text-align:left; padding:0; width:100%; }
+  .p-card img{ width:100%; height:104px; object-fit:cover; display:block; background:#e8efeb; }
+  .p-card .p-info{ padding:9px 11px 11px; }
+  .p-card .p-name{ font-size:13.5px; font-weight:800; color:#14201c; line-height:1.3; }
+  .p-card .p-price{ font-size:13px; font-weight:800; color:#0b6b5a; margin-top:3px; }
+  .p-card .p-price s{ color:#8a9a92; font-weight:600; margin-left:5px; }
+  .p-card .p-tagline{ font-size:11px; color:#5a6b64; font-weight:700; margin-top:2px; }
+  .load-more{ width:100%; margin-top:12px; background:#fff; border:1.5px dashed #9db8ab; color:#0b6b5a; font-weight:800; border-radius:12px; padding:11px; font-size:14px; min-height:44px; }
+  .end-note{ text-align:center; font-size:12.5px; color:#5a6b64; font-weight:700; margin-top:12px; display:none; }
+
+  /* vote */
+  .review{ background:#fff; border:1px solid #e0e8e3; border-radius:14px; padding:12px 13px; margin-top:9px; }
+  .review b{ font-size:13.5px; color:#14201c; }
+  .review .stars{ color:#d98a00; font-size:12.5px; letter-spacing:2px; }
+  .review p{ font-size:13px; color:#3c4f47; margin-top:3px; }
+  .vote-row{ display:flex; align-items:center; gap:9px; margin-top:8px; }
+  .vote-btn{ border:1.5px solid #b9cdc2; background:#eef4f1; color:#0b6b5a; border-radius:9px; padding:5px 12px; font-weight:800; font-size:12.5px; min-height:36px; }
+  .vote-btn.voted{ background:#0b6b5a; color:#fff; border-color:#0b6b5a; }
+  .vote-count{ font-size:12.5px; color:#5a6b64; font-weight:700; }
+
+  /* fat footer inside phone */
+  .fat-footer{ background:#0e2a23; color:#cfe3da; border-radius:16px; padding:16px; margin-top:18px; }
+  .fat-footer h4{ margin:0 0 4px; font-family:"Bricolage Grotesque",sans-serif; color:#fff; font-size:16px; }
+  .fat-footer .ff-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:10px; }
+  .fat-footer h5{ margin:0 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:#8fd0ba; }
+  .fat-footer a{ display:block; color:#cfe3da; font-size:12px; text-decoration:none; padding:4px 0; min-height:24px; }
+  .fat-footer .ff-note{ font-size:11px; color:#8fa89d; margin-top:12px; }
+
+  /* breadcrumbs */
+  .crumbs{ display:flex; flex-wrap:wrap; align-items:center; gap:4px; font-size:12.5px; padding:8px 0 10px; color:#5a6b64; font-weight:600; }
+  .crumbs button{ background:none; border:none; color:#0b6b5a; font-weight:800; font-size:12.5px; padding:6px 4px; min-height:32px; }
+  .crumbs .cur{ color:#14201c; font-weight:800; padding:6px 4px; }
+
+  /* product detail */
+  .hero-img{ width:100%; height:230px; object-fit:cover; border-radius:16px; background:#e8efeb; display:block; }
+  .thumb-row{ display:flex; gap:8px; margin-top:9px; }
+  .thumb{ flex:1; border:2.5px solid transparent; border-radius:11px; overflow:hidden; padding:0; background:#e8efeb; min-height:52px; }
+  .thumb img{ width:100%; height:52px; object-fit:cover; display:block; }
+  .thumb.on{ border-color:#0b6b5a; }
+  .thumb small{ display:block; font-size:10px; font-weight:800; padding:3px 0 4px; color:#28443a; background:#fff; }
+  .detail h2{ font-size:21px; color:#14201c; margin-top:13px; }
+  .detail .d-price{ font-size:19px; font-weight:800; color:#0b6b5a; margin-top:4px; }
+  .detail .d-price s{ color:#8a9a92; font-size:14px; margin-left:6px; }
+  .detail .d-desc{ font-size:13.5px; color:#3c4f47; margin-top:7px; }
+  .cta-row{ display:flex; gap:9px; margin-top:14px; }
+  .btn-primary{ flex:1; background:#0b6b5a; color:#fff; border:none; border-radius:12px; font-weight:800; font-size:14.5px; padding:12px; min-height:46px; }
+  .btn-ghost{ background:#fff; border:1.5px solid #b9cdc2; color:#0b6b5a; border-radius:12px; font-weight:800; font-size:14px; padding:12px 14px; min-height:46px; }
+
+  /* steps / checkout */
+  .steps-head{ background:#fff; border:1px solid #e0e8e3; border-radius:14px; padding:13px 14px; margin-top:6px; }
+  .steps-head .steps-label{ font-size:14px; font-weight:800; color:#14201c; }
+  .steps-head .steps-label span{ color:#b96a00; }
+  .steps-bar{ display:flex; gap:6px; margin-top:9px; }
+  .steps-bar i{ flex:1; height:7px; border-radius:99px; background:#dce6df; display:block; }
+  .steps-bar i.done{ background:#0b6b5a; }
+  .steps-bar i.now{ background:#e8a317; }
+  .step-pane{ display:none; margin-top:13px; }
+  .step-pane.active{ display:block; }
+  .field{ margin-bottom:11px; }
+  .field label{ display:block; font-size:12.5px; font-weight:800; color:#28443a; margin-bottom:5px; }
+  .field input, .field select{ width:100%; border:1.5px solid #cfdcd4; border-radius:11px; padding:10px 12px; font-size:14px; font-family:inherit; background:#fff; color:#14201c; min-height:42px; box-sizing:border-box; }
+  .field input.ok{ border-color:#0b6b5a; }
+  .field input.err{ border-color:#b3372a; }
+  .fb{ font-size:12.5px; font-weight:700; margin-top:5px; display:none; }
+  .fb.ok{ color:#0b6b5a; display:block; }
+  .fb.err{ color:#b3372a; display:block; }
+  .radio-card{ display:flex; gap:10px; align-items:flex-start; border:1.5px solid #cfdcd4; background:#fff; border-radius:12px; padding:11px 12px; margin-bottom:9px; cursor:pointer; }
+  .radio-card.sel{ border-color:#0b6b5a; background:#eef6f2; }
+  .radio-card input{ margin-top:3px; width:17px; height:17px; accent-color:#0b6b5a; }
+  .radio-card b{ font-size:13.5px; color:#14201c; display:block; }
+  .radio-card span{ font-size:12.5px; color:#5a6b64; }
+  .default-badge{ font-size:10px; font-weight:800; background:#fdf3e0; color:#8a5200; border:1px solid #f0d9a8; border-radius:6px; padding:2px 6px; margin-left:6px; vertical-align:2px; }
+  .summary-box{ background:#fff; border:1px solid #e0e8e3; border-radius:14px; padding:13px 14px; font-size:13.5px; color:#3c4f47; }
+  .summary-box .row{ display:flex; justify-content:space-between; padding:3.5px 0; }
+  .summary-box .row.total{ border-top:1px solid #e4ebe7; margin-top:7px; padding-top:9px; font-weight:800; color:#14201c; font-size:15px; }
+  .success-box{ display:none; background:#e7f4ee; border:1.5px solid #0b6b5a; border-radius:14px; padding:15px; margin-top:13px; text-align:center; }
+  .success-box b{ font-size:16px; color:#084f43; display:block; }
+  .success-box p{ font-size:13px; color:#28443a; margin-top:4px; }
+
+  /* account / password */
+  .pw-wrap{ position:relative; }
+  .meter{ height:9px; background:#e0e8e3; border-radius:99px; overflow:hidden; margin-top:8px; }
+  .meter i{ display:block; height:100%; width:0%; border-radius:99px; transition:width .25s, background .25s; background:#b3372a; }
+  .pw-label{ font-size:12.5px; font-weight:800; margin-top:5px; color:#5a6b64; }
+  .pw-rules{ list-style:none; margin:8px 0 0; padding:0; font-size:12.5px; color:#5a6b64; font-weight:600; }
+  .pw-rules li{ padding:2.5px 0 2.5px 21px; position:relative; }
+  .pw-rules li::before{ content:"○"; position:absolute; left:2px; }
+  .pw-rules li.hit{ color:#0b6b5a; }
+  .pw-rules li.hit::before{ content:"●"; }
+  .captcha{ display:flex; align-items:center; gap:11px; border:1.5px solid #cfdcd4; background:#fff; border-radius:12px; padding:12px 13px; }
+  .captcha input{ width:22px; height:22px; accent-color:#0b6b5a; flex:none; }
+  .captcha label{ font-size:14px; font-weight:700; color:#14201c; flex:1; cursor:pointer; }
+  .captcha .cap-state{ font-size:11.5px; font-weight:800; color:#5a6b64; text-align:right; }
+  .captcha.verified{ border-color:#0b6b5a; background:#eef6f2; }
+  .captcha.verified .cap-state{ color:#0b6b5a; }
+
+  /* phone bottom nav */
+  .phone-nav{ display:flex; border-top:1px solid #e0e8e3; background:#fff; }
+  .phone-nav button{ flex:1; background:none; border:none; padding:9px 2px 11px; font-size:11px; font-weight:800; color:#5a6b64; min-height:52px; }
+  .phone-nav button .ni{ display:block; font-size:18px; line-height:1.15; }
+  .phone-nav button.on{ color:#0b6b5a; }
+
+  .toast{ display:none; background:#0e2a23; color:#fff; font-size:13px; font-weight:700; border-radius:11px; padding:11px 13px; margin:10px 16px 0; }
+  .toast.show{ display:block; }
+
+  [data-pattern]{ border-radius:6px; }
+  .hl{ outline:3px solid #e8a317 !important; outline-offset:3px; box-shadow:0 0 0 6px rgba(232,163,23,.25); }
+
+  .phone-caption{ text-align:center; font-size:13px; color:var(--ink-2); margin-top:13px; font-weight:600; }
+
+  /* ---------- Right column ---------- */
+  .panel{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:22px; margin-bottom:20px; }
+  .panel h2{ font-size:23px; margin-bottom:8px; }
+  .panel h3{ font-size:17px; margin:18px 0 6px; }
+  .panel p, .panel li{ color:var(--ink-2); font-size:15px; }
+  .panel p strong, .panel li strong{ color:var(--ink); }
+  .panel ul{ margin:6px 0 0; padding-left:20px; }
+  .panel li{ margin-bottom:5px; }
+
+  .explorer-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:9px; margin-top:13px; }
+  .explorer-grid button{ background:var(--surface-2); border:1.5px solid var(--line); color:var(--ink); border-radius:12px; padding:10px 11px; text-align:left; font-weight:800; font-size:13.5px; min-height:48px; }
+  .explorer-grid button small{ display:block; font-weight:600; color:var(--ink-2); font-size:11.5px; margin-top:2px; }
+  .explorer-grid button.active{ border-color:var(--teal); background:var(--chip); }
+  .explorer-detail{ margin-top:14px; border:1.5px solid var(--teal); border-radius:14px; padding:15px 16px; background:var(--chip); display:none; }
+  .explorer-detail.show{ display:block; }
+  .explorer-detail h3{ margin:0 0 5px; font-size:17px; }
+  .explorer-detail p{ font-size:14.5px; color:var(--ink); }
+  .explorer-detail p + p{ margin-top:6px; }
+  .explorer-detail .lbl{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--teal-dark); font-weight:600; }
+
+  /* tables */
+  .table-scroll{ overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:14px; }
+  table{ border-collapse:collapse; width:100%; min-width:640px; background:var(--surface); }
+  th{ text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-2); padding:11px 13px; border-bottom:2px solid var(--line); background:var(--surface-2); }
+  td{ padding:11px 13px; font-size:14px; color:var(--ink-2); border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:last-child td{ border-bottom:none; }
+  td strong{ color:var(--ink); }
+  td .where{ color:var(--teal-dark); font-weight:700; }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px; }
+  @media (max-width:700px){ .two-col{ grid-template-columns:1fr; } }
+  .mini-card{ border:1px solid var(--line); border-radius:14px; padding:15px 16px; background:var(--surface-2); }
+  .mini-card h3{ margin:0 0 6px; font-size:16px; }
+  .mini-card p, .mini-card li{ font-size:14px; }
+
+  .swatches{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+  .sw{ border:1px solid var(--line); border-radius:12px; overflow:hidden; width:128px; background:var(--surface); }
+  .sw i{ display:block; height:42px; }
+  .sw div{ padding:7px 9px; font-size:11.5px; font-weight:700; color:var(--ink-2); }
+  .sw div b{ display:block; color:var(--ink); font-size:12.5px; }
+
+  .steps-list{ counter-reset:st; list-style:none; padding:0; margin:10px 0 0; }
+  .steps-list li{ counter-increment:st; position:relative; padding:0 0 13px 42px; color:var(--ink-2); font-size:15px; }
+  .steps-list li::before{ content:counter(st); position:absolute; left:0; top:-2px; width:29px; height:29px; border-radius:50%; background:var(--teal); color:#fff; font-weight:800; font-size:14px; display:grid; place-items:center; }
+  .steps-list li strong{ color:var(--ink); }
+
+  .check-list{ list-style:none; padding:0; margin:10px 0 0; }
+  .check-list li{ padding:7px 0 7px 30px; position:relative; font-size:15px; color:var(--ink-2); border-bottom:1px dashed var(--line); }
+  .check-list li:last-child{ border-bottom:none; }
+  .check-list li::before{ content:"✓"; position:absolute; left:4px; color:var(--teal); font-weight:800; }
+  .check-list li strong{ color:var(--ink); }
+
+  @media (max-width:700px){
+    .table-scroll{ overflow-x:visible; border:none; }
+    table{ min-width:0; display:block; background:transparent; }
+    thead{ display:none; }
+    tbody{ display:block; }
+    tr{ display:block; border:1px solid var(--line); border-radius:14px; background:var(--surface); padding:8px 4px; margin-bottom:12px; }
+    td{ display:block; border-bottom:none; padding:6px 13px; }
+    td:first-child{ font-size:15.5px; }
+  }
+  footer.page-foot{ margin-top:34px; font-size:13px; color:var(--ink-2); border-top:1px solid var(--line); padding-top:16px; }
+  @media print{ .phone-col{ position:static; } body{ background:#fff; } }
+</style>
+<style>
+body{background:#eef3f0!important;margin:0}
+.intro,.split>*:not(.phone-col),.phone-caption{display:none!important}
+.wrap>*:not(.split){display:none!important} .wrap{max-width:none!important;padding:0!important}
+.split{display:block!important;padding:24px 10px!important;max-width:none!important}
+.phone-col{position:static!important;width:100%!important;max-width:410px!important;margin:0 auto!important}
+.badge-tag,[class*="pattern-tag"]{}
+</style></head>
+<body>
+<div class="wrap"><h1 style="display:none"></h1>
+
+  <!-- ================= INTRO ================= -->
+  <header class="intro">
+    <div class="meta-row">
+      <span class="meta-pill"><strong>Course:</strong>&nbsp;HCI and CG — 6th Semester A2</span>
+      <span class="meta-pill"><strong>Lab Task:</strong>&nbsp;Implementing UI Design Patterns</span>
+      <span class="meta-pill"><strong>Student:</strong>&nbsp;Rizwan Khan (0046, CS-A2)</span>
+      <span class="meta-pill"><strong>Teacher:</strong>&nbsp;Iqra Yousaf</span>
+    </div>
+    <h1>ShopEase — a mobile store designed <span class="accent">with patterns, not guesswork</span></h1>
+    <p class="lede">The assignment asked for a mobile e-commerce app in which <strong>at least three UI design patterns are visibly implemented</strong> — not just labelled. This page is the complete <strong>design and written solution</strong>: a <strong>working ShopEase prototype</strong> (try it — every pattern below actually works) that implements <strong>all 15 patterns from Lecture 22</strong> and doubles as the exact specification for your Figma frames, plus the justification table and lecture analysis for your submission document. The Figma frames themselves are still yours to draw — the checklist at the end walks through that step by step.</p>
+    <p class="source-line"><strong>Sources used:</strong> Lecture 21 — HCI in the Software Process (Dix et al., Ch. 6) · Lecture 22 — UI Design Patterns (15 patterns) · Lab Task brief — HCI and CG Practical, “Implementing UI Design Patterns” · Dix, Finlay, Abowd &amp; Beale, <em>Human-Computer Interaction</em>, 3rd ed. (2004). Note: Lecture 22's slide 1 was an image-only title slide that could not be read as text, so the 15-pattern inventory here is drawn from slides 2–32.</p>
+  </header>
+
+  <!-- ================= MAIN SPLIT ================= -->
+  <div class="split">
+
+    <!-- ===== PHONE ===== -->
+    <div class="phone-col">
+      <div class="phone" aria-label="ShopEase mobile app prototype">
+        <div class="phone-screen">
+          <div class="notch">ShopEase · Interactive prototype · 9:41</div>
+          <div class="toast" id="toast" role="status"></div>
+          <div class="phone-scroll" id="phoneScroll">
+
+            <!-- ======== SCREEN: HOME ======== -->
+            <section class="screen active" id="screen-home">
+              <div class="appbar">
+                <button class="logo" data-pattern="home-link" data-goto="home" title="Home Link — tap to return to the start page">Shop<span>Ease</span></button>
+                <div class="appbar-icons">
+                  <button class="icon-btn" data-goto="account" aria-label="Account">👤</button>
+                  <button class="icon-btn cart-badge" data-goto="checkout" aria-label="Cart">🛒<b id="cartCount">2</b></button>
+                </div>
+              </div>
+
+              <div class="searchbar">
+                <input type="search" id="searchInput" placeholder="Search headphones, shoes…" aria-label="Search products" />
+                <button id="searchBtn">Search</button>
+              </div>
+              <p class="fb" id="searchFb"></p>
+
+              <div class="guest-banner" data-pattern="lazy-registration">
+                <strong>👋 You're browsing as a guest</strong>
+                No sign-up needed to look around, add to cart and compare. We'll only ask for an account at checkout.
+                <br /><button data-goto="account">Create account later →</button>
+              </div>
+
+              <div class="sec-head"><h3>Featured today</h3><span class="pattern-tag" >Carousel</span></div>
+              <div data-pattern="carousel">
+                <div class="carousel" id="carousel">
+                  <div class="slide"><img src="assets/headphones.jpg" alt="AuraSound wireless headphones" /><div class="slide-cap"><b>AuraSound Headphones</b><span>Noise cancelling · Rs 8,499</span></div></div>
+                  <div class="slide"><img src="assets/sneakers.jpg" alt="StrideMax running sneakers" /><div class="slide-cap"><b>StrideMax Sneakers</b><span>Lightweight knit · Rs 6,299</span></div></div>
+                  <div class="slide"><img src="assets/watch.png" alt="PulseFit smartwatch" /><div class="slide-cap"><b>PulseFit Smartwatch</b><span>Heart-rate + GPS · Rs 11,999</span></div></div>
+                </div>
+                <div class="carousel-nav">
+                  <div class="dots" id="carDots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+                  <div class="car-btns"><button id="carPrev" aria-label="Previous slide">‹</button><button id="carNext" aria-label="Next slide">›</button></div>
+                </div>
+              </div>
+
+              <div class="sec-head"><h3>Shop by tag</h3><span class="pattern-tag">Tag</span></div>
+              <div class="tag-row" data-pattern="tag" id="tagRow">
+                <button class="tag-chip on" data-tag="all">All</button>
+                <button class="tag-chip" data-tag="audio">#Audio</button>
+                <button class="tag-chip" data-tag="fitness">#Fitness</button>
+                <button class="tag-chip" data-tag="fashion">#Fashion</button>
+                <button class="tag-chip" data-tag="under10">Under Rs 10,000</button>
+              </div>
+
+              <div class="sec-head"><h3>Categories</h3><span class="pattern-tag">Accordion Menu</span></div>
+              <div class="acc" data-pattern="accordion">
+                <div class="acc-item open">
+                  <button class="acc-head">Electronics <span class="chev">▾</span></button>
+                  <div class="acc-body"><button data-open-product>Headphones &amp; earbuds</button><button data-open-product>Smartwatches</button><button>Speakers</button></div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-head">Fashion <span class="chev">▾</span></button>
+                  <div class="acc-body"><button data-open-product>Sneakers</button><button data-open-product>Sunglasses</button><button>Bags &amp; totes</button></div>
+                </div>
+                <div class="acc-item">
+                  <button class="acc-head">Home &amp; Living <span class="chev">▾</span></button>
+                  <div class="acc-body"><button>Lamps</button><button>Kitchen</button><button>Storage</button></div>
+                </div>
+              </div>
+
+              <div class="sec-head"><h3>Popular products</h3><span class="pattern-tag">Thumbnail</span></div>
+              <div class="grid" id="productGrid" data-pattern="thumbnail"></div>
+              <button class="load-more" id="loadMore" data-pattern="continuous-scrolling">Keep scrolling — load more products ↓</button>
+              <p class="end-note" id="endNote">You've seen all 9 products — no endless pages to click through.</p>
+
+              <div class="fat-footer" data-pattern="fat-footer">
+                <h4>ShopEase</h4>
+                <p style="font-size:12.5px;">Everything in one place, from any screen — no digging through menus.</p>
+                <div class="ff-grid">
+                  <div><h5>Shop</h5><a href="#" data-open-product>Electronics</a><a href="#" data-open-product>Fashion</a><a href="#" data-goto="home">New arrivals</a><a href="#" data-goto="home">Sale</a></div>
+                  <div><h5>Help</h5><a href="#" data-goto="checkout">Track order</a><a href="#">Returns</a><a href="#">Delivery info</a><a href="#">Contact us</a></div>
+                  <div><h5>Company</h5><a href="#" data-goto="account">My account</a><a href="#">About</a><a href="#">Careers</a><a href="#">Privacy</a></div>
+                </div>
+                <p class="ff-note">Fat Footer pattern — secondary navigation that shortcuts the hierarchy.</p>
+              </div>
+            </section>
+
+            <!-- ======== SCREEN: PRODUCT ======== -->
+            <section class="screen detail" id="screen-product">
+              <nav class="crumbs" data-pattern="breadcrumbs" aria-label="Breadcrumb">
+                <button data-goto="home">Home</button> › <button data-goto="home">Audio</button> › <button data-goto="home">Headphones</button> › <span class="cur">AuraSound Pro</span>
+              </nav>
+              <img class="hero-img" id="heroImg" src="assets/headphones.jpg" alt="AuraSound Pro headphones — selected colour view" />
+              <div class="thumb-row" data-pattern="thumbnail" id="thumbRow">
+                <button class="thumb on" data-filter="none"><img src="assets/headphones.jpg" alt="Silver colour view" /><small>Silver</small></button>
+                <button class="thumb" data-filter="grayscale(1) brightness(.72)"><img src="assets/headphones.jpg" alt="Matte black colour view" style="filter:grayscale(1) brightness(.72)" /><small>Black</small></button>
+                <button class="thumb" data-filter="sepia(.55) saturate(1.2)"><img src="assets/headphones.jpg" alt="Sand colour view" style="filter:sepia(.55) saturate(1.2)" /><small>Sand</small></button>
+                <button class="thumb" data-filter="hue-rotate(160deg) saturate(1.1)"><img src="assets/headphones.jpg" alt="Teal colour view" style="filter:hue-rotate(160deg) saturate(1.1)" /><small>Teal</small></button>
+              </div>
+              <h2>AuraSound Pro Wireless Headphones</h2>
+              <p class="d-price">Rs 8,499 <s>Rs 10,999</s></p>
+              <div class="tag-row" style="margin-top:9px;">
+                <button class="tag-chip" data-goto="home">#Audio</button>
+                <button class="tag-chip" data-goto="home">#NoiseCancelling</button>
+                <button class="tag-chip" data-goto="home">Under Rs 10,000</button>
+              </div>
+              <p class="d-desc">40-hour battery, active noise cancelling and soft memory-foam earcups. Tap a colour thumbnail above — the large photo updates without loading a new page, so you compare views at a glance.</p>
+              <div class="cta-row">
+                <button class="btn-primary" id="addToCart">Add to cart</button>
+                <button class="btn-ghost" data-goto="checkout">Buy now</button>
+              </div>
+
+              <div class="sec-head"><h3>What shoppers say</h3><span class="pattern-tag alt">Vote to Promote</span></div>
+              <div data-pattern="vote">
+                <div class="review">
+                  <b>Mahnoor S.</b> <span class="stars">★★★★★</span>
+                  <p>“Battery really lasts the whole week. Best purchase this semester.”</p>
+                  <div class="vote-row"><button class="vote-btn" data-vote>▲ Helpful</button><span class="vote-count"><b class="vnum">128</b> people found this helpful</span></div>
+                </div>
+                <div class="review">
+                  <b>Ali R.</b> <span class="stars">★★★★☆</span>
+                  <p>“Great sound, slightly tight for long study sessions.”</p>
+                  <div class="vote-row"><button class="vote-btn" data-vote>▲ Helpful</button><span class="vote-count"><b class="vnum">64</b> people found this helpful</span></div>
+                </div>
+                <p style="font-size:12.5px;color:#5a6b64;margin-top:8px;">Reviews with the most votes rise to the top — the community, not the seller, decides what is most useful.</p>
+              </div>
+            </section>
+
+            <!-- ======== SCREEN: CHECKOUT ======== -->
+            <section class="screen" id="screen-checkout">
+              <div class="sec-head" style="margin-top:10px;"><h3 style="font-size:19px;">Checkout</h3><span class="pattern-tag">Steps Left</span></div>
+              <div class="steps-head" data-pattern="steps-left">
+                <p class="steps-label" id="stepsLabel">Step 1 of 3 — <span>2 steps left</span></p>
+                <div class="steps-bar" id="stepsBar"><i class="now"></i><i></i><i></i></div>
+              </div>
+
+              <div class="step-pane active" data-step="1">
+                <h3 style="font-size:15.5px;margin:2px 0 10px;">1 · Delivery address</h3>
+                <div class="field"><label for="fName">Full name</label><input id="fName" value="Rizwan Khan" autocomplete="name" /></div>
+                <div class="field"><label for="fPhone">Mobile number</label><input id="fPhone" placeholder="03XX-XXXXXXX" inputmode="tel" /><p class="fb" id="phoneFb"></p></div>
+                <div class="field"><label for="fCity">City</label>
+                  <select id="fCity"><option selected>Lahore</option><option>Karachi</option><option>Islamabad</option><option>Mirpur</option><option>Sukkur</option></select>
+                  <p class="fb ok" style="display:block;">Pre-filled from your last order — change it if you've moved. <span class="pattern-tag grey" style="margin-left:4px;">Good Defaults</span></p>
+                </div>
+                <button class="btn-primary" id="toStep2" style="width:100%;">Continue to payment →</button>
+              </div>
+
+              <div class="step-pane" data-step="2">
+                <h3 style="font-size:15.5px;margin:2px 0 10px;">2 · Delivery &amp; payment</h3>
+                <div data-pattern="good-defaults">
+                  <label class="radio-card sel"><input type="radio" name="del" checked /><span><b>Standard delivery — Rs 250</b><span>2–3 working days · chosen by 8 out of 10 shoppers</span></span><span class="default-badge">DEFAULT</span></label>
+                  <label class="radio-card"><input type="radio" name="del" /><span><b>Express delivery — Rs 550</b><span>Next working day</span></span></label>
+                  <label class="radio-card sel"><input type="radio" name="pay" checked /><span><b>Cash on Delivery</b><span>Pay when your order arrives · most popular in Pakistan</span></span><span class="default-badge">DEFAULT</span></label>
+                  <label class="radio-card"><input type="radio" name="pay" /><span><b>Debit / credit card</b><span>Pay now, securely</span></span></label>
+                </div>
+                <div class="cta-row"><button class="btn-ghost" data-stepback>← Back</button><button class="btn-primary" id="toStep3">Review order →</button></div>
+              </div>
+
+              <div class="step-pane" data-step="3">
+                <h3 style="font-size:15.5px;margin:2px 0 10px;">3 · Review &amp; confirm</h3>
+                <div class="summary-box">
+                  <div class="row"><span>AuraSound Pro Headphones × 1</span><span>Rs 8,499</span></div>
+                  <div class="row"><span>StrideMax Sneakers × 1</span><span>Rs 6,299</span></div>
+                  <div class="row"><span>Standard delivery</span><span>Rs 250</span></div>
+                  <div class="row"><span>Payment</span><span>Cash on Delivery</span></div>
+                  <div class="row total"><span>Total</span><span>Rs 15,048</span></div>
+                </div>
+                <div class="cta-row"><button class="btn-ghost" data-stepback>← Back</button><button class="btn-primary" id="placeOrder">Place order</button></div>
+                <div class="success-box" id="orderSuccess" data-pattern="input-feedback">
+                  <b>✓ Order placed — thank you!</b>
+                  <p>Order #SE-2041 · Cash on Delivery · Arrives in 2–3 working days. A confirmation has been sent to your phone. This instant confirmation is the Input Feedback pattern: the system always answers an action.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ======== SCREEN: ACCOUNT ======== -->
+            <section class="screen" id="screen-account">
+              <div class="sec-head" style="margin-top:10px;"><h3 style="font-size:19px;">Create your account</h3><span class="pattern-tag alt">Lazy Registration</span></div>
+              <p style="font-size:13.5px;color:#3c4f47;">You shopped as a guest first — only now, when it actually helps you (tracking orders, faster checkout), do we ask you to register.</p>
+
+              <div style="margin-top:13px;">
+                <div class="field"><label for="accName">Full name</label><input id="accName" placeholder="e.g. Ayesha Tariq" autocomplete="name" /></div>
+                <div class="field"><label for="accEmail">Email</label><input id="accEmail" placeholder="you@example.com" inputmode="email" autocomplete="email" /><p class="fb" id="emailFb"></p></div>
+                <div class="field" data-pattern="password-meter">
+                  <label for="accPw">Password</label>
+                  <input id="accPw" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+                  <div class="meter"><i id="pwBar"></i></div>
+                  <p class="pw-label" id="pwLabel">Start typing — we'll show how strong it is.</p>
+                  <ul class="pw-rules">
+                    <li id="ruleLen">8+ characters</li>
+                    <li id="ruleMix">Uppercase + lowercase</li>
+                    <li id="ruleNum">A number or symbol</li>
+                  </ul>
+                </div>
+                <div class="field" data-pattern="captcha">
+                  <div class="captcha" id="captchaBox">
+                    <input type="checkbox" id="captchaCheck" />
+                    <label for="captchaCheck">I'm not a robot</label>
+                    <span class="cap-state" id="capState">CAPTCHA<br />check</span>
+                  </div>
+                  <p class="fb" id="capFb"></p>
+                </div>
+                <button class="btn-primary" id="createAccount" style="width:100%;">Create account</button>
+                <div class="success-box" id="accSuccess" data-pattern="input-feedback">
+                  <b>✓ Account created — welcome to ShopEase!</b>
+                  <p>Your guest cart (2 items) has been saved to your account. Nothing you did as a guest was lost.</p>
+                </div>
+                <p style="font-size:12px;color:#5a6b64;margin-top:10px;text-align:center;">By continuing you agree to the Terms &amp; Privacy Policy.</p>
+              </div>
+            </section>
+
+          </div><!-- /phone-scroll -->
+
+          <nav class="phone-nav" aria-label="ShopEase sections">
+            <button class="on" data-goto="home"><span class="ni">⌂</span>Home</button>
+            <button data-goto="product"><span class="ni">🎧</span>Product</button>
+            <button data-goto="checkout"><span class="ni">🛒</span>Checkout</button>
+            <button data-goto="account"><span class="ni">👤</span>Account</button>
+          </nav>
+        </div>
+      </div>
+      <p class="phone-caption">The prototype is fully tappable — switch screens with the bottom bar, or use the Pattern Explorer on the right to jump to any pattern.</p>
+    </div>
+
+    <!-- ===== RIGHT COLUMN ===== -->
+    <div>
+      <section class="panel" aria-labelledby="explorerH">
+        <h2 id="explorerH">Pattern Explorer — find each pattern in the app</h2>
+        <p>Tap a pattern and the phone jumps to the screen where it lives and <strong>highlights it in amber</strong>. This is also your viva/demo script: 15 taps, 15 patterns, each one working — not pasted on as a label.</p>
+        <div class="explorer-grid" id="explorerGrid"></div>
+        <div class="explorer-detail" id="explorerDetail">
+          <p class="lbl" id="exWhere"></p>
+          <h3 id="exName"></h3>
+          <p><strong>Problem it solves (Lecture 22):</strong> <span id="exProblem"></span></p>
+          <p><strong>In ShopEase:</strong> <span id="exUse"></span></p>
+          <p><strong>Why it works:</strong> <span id="exWhy"></span></p>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="screensH">
+        <h2 id="screensH">The four screens (your Figma frames)</h2>
+        <p>Recreate these as four mobile frames (390 × 844) in Figma — the layout, colours and spacing on this page are the specification.</p>
+        <ul>
+          <li><strong>S1 · Home</strong> — Home Link logo, search, guest banner, Carousel, Tag chips, Accordion Menu, Thumbnail grid, Continuous Scrolling, Fat Footer.</li>
+          <li><strong>S2 · Product detail</strong> — Breadcrumbs, large photo + Thumbnail colour strip, Tags, Add to Cart, Vote to Promote reviews.</li>
+          <li><strong>S3 · Checkout</strong> — Steps Left header, address form with Input Feedback, Good Defaults for delivery/payment, review + order confirmation.</li>
+          <li><strong>S4 · Create account</strong> — Lazy Registration entry point, Password Strength Meter, Input Feedback on email, Captcha check.</li>
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="lectureH">
+        <h2 id="lectureH">What the two lectures actually say</h2>
+        <h3>Lecture 21 — HCI in the Software Process (Dix Ch. 6)</h3>
+        <p>The lecture places interactive-system design inside the <strong>software life cycle</strong> — requirements specification → architectural design → detailed design → coding &amp; unit testing → integration &amp; testing → operation &amp; maintenance (the waterfall sequence). Three ideas from it drive this assignment:</p>
+        <ul>
+          <li><strong>Requirements for interactive systems cannot all be fixed at the start.</strong> Unlike pure waterfall work, a usable interface has to be built, observed with real users and revised — which is why this solution is a tappable prototype, not a static picture.</li>
+          <li><strong>Validation vs verification.</strong> Validation = <em>designing the right product</em> (does it meet the user's real needs?); verification = <em>designing the product right</em> (is it built consistently to spec?). ShopEase was validated against the shopper tasks in the brief (navigate, enter data securely, get feedback, browse efficiently) and verified pattern-by-pattern against Lecture 22's usage rules.</li>
+          <li><strong>The formality gap.</strong> There is always a distance between messy real-world shopping and any formal process. Patterns help bridge it: they are field-tested, informal solutions that a formal process alone would not invent.</li>
+        </ul>
+        <p style="margin-top:8px;">Lecture 21 also introduces <strong>usability engineering</strong> — usability testing, heuristic evaluation, cognitive walkthrough, think-aloud protocol, focus groups and questionnaires. The checklist at the end of this page turns those into a small test plan for ShopEase.</p>
+        <h3>Lecture 22 — UI Design Patterns</h3>
+        <p>A pattern is a <strong>recurring solution to a common design problem</strong> — a standard reference point for the experienced designer. The lecture gives 15 patterns, each with a problem summary and usage rules (“use when… / do not use when…”). ShopEase follows those rules literally: for example, <strong>Steps Left</strong> is used because checkout has 3 steps (the lecture says don't use it for 1–2 steps), <strong>Breadcrumbs</strong> appear only on the deep product page (never on the home page), and the <strong>Fat Footer</strong> is secondary navigation, never the main one.</p>
+      </section>
+    </div>
+  </div>
+
+  <!-- ================= JUSTIFICATION TABLE ================= -->
+  <section class="panel" style="margin-top:26px;" aria-labelledby="tableH">
+    <h2 id="tableH">Pattern justification — the written part of the assignment</h2>
+    <p>The brief requires at least 3 patterns, each <strong>visibly implemented and justified by the problem it solves</strong>. ShopEase implements all 15 from Lecture 22. Copy this table into your submission document as-is.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th style="width:15%;">Pattern</th><th style="width:28%;">Problem it solves (Lecture 22)</th><th style="width:24%;">Where in ShopEase</th><th>Justification</th></tr></thead>
+        <tbody id="justBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= DESIGN SYSTEM + PROCESS ================= -->
+  <div class="two-col" style="grid-template-columns:1fr 1fr; display:grid; gap:20px;">
+    <section class="panel" style="margin-bottom:0;" aria-labelledby="designH">
+      <h2 id="designH">Design system</h2>
+      <h3>Colours</h3>
+      <div class="swatches">
+        <div class="sw"><i style="background:#0b6b5a;"></i><div><b>Teal — Primary</b>#0B6B5A · actions, prices</div></div>
+        <div class="sw"><i style="background:#0e2a23;"></i><div><b>Deep Teal</b>#0E2A23 · footer, toasts</div></div>
+        <div class="sw"><i style="background:#e4572e;"></i><div><b>Coral — Accent</b>#E4572E · sale, cart badge</div></div>
+        <div class="sw"><i style="background:#e8a317;"></i><div><b>Amber — Guidance</b>#E8A317 · steps, defaults</div></div>
+        <div class="sw"><i style="background:#f6f8f7;"></i><div><b>App Background</b>#F6F8F7</div></div>
+        <div class="sw"><i style="background:#14201c;"></i><div><b>Ink — Text</b>#14201C</div></div>
+      </div>
+      <h3>Typography</h3>
+      <p><strong>Bricolage Grotesque</strong> for headings and the logo (friendly, confident — a startup feel), <strong>Manrope</strong> for all UI text and prices. Scale: 21px screen titles, 16–17px section heads, 13–14px body, 11–12px captions. Nothing essential is set below 11px.</p>
+      <h3>Layout &amp; spacing</h3>
+      <p>Single-column mobile frame, 16px side margins, an <strong>8-point spacing rhythm</strong> (8 / 12 / 16 / 24px gaps), cards with 14–16px radius, and every tappable target at least <strong>36 × 36px</strong> — Dix's ergonomics point from Assignment 1 applied to thumbs instead of desks. One primary action per screen keeps the visual hierarchy obvious.</p>
+    </section>
+
+    <section class="panel" style="margin-bottom:0;" aria-labelledby="processH">
+      <h2 id="processH">How it was built — Lecture 21 applied</h2>
+      <ol class="steps-list">
+        <li><strong>Requirements:</strong> taken from the lab brief itself — users must navigate easily, enter data securely, receive feedback, and browse products efficiently. Those four tasks became the four screens.</li>
+        <li><strong>Architectural design:</strong> four modules — Home/Browse, Product, Checkout, Account — each owning the patterns that belong to its task.</li>
+        <li><strong>Detailed design:</strong> each pattern matched to a screen using Lecture 22's “use when” rules, and rejected where the rules say not to use it (e.g. no Breadcrumbs on Home).</li>
+        <li><strong>Prototype &amp; test:</strong> built as a working prototype, then walked through task-by-task (a cognitive walkthrough in Lecture 21's terms) to catch dead ends.</li>
+        <li><strong>Validation &amp; verification:</strong> validated — does a first-time shopper reach checkout without help? Verified — does every control behave the way its label promises?</li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ================= SUBMISSION ================= -->
+  <section class="panel" style="margin-top:20px;" aria-labelledby="submitH">
+    <h2 id="submitH">Submission checklist &amp; usability test plan</h2>
+    <div class="two-col">
+      <div>
+        <h3 style="margin-top:2px;">Before you submit</h3>
+        <ul class="check-list">
+          <li><strong>4 Figma frames</strong> (390 × 844) matching screens S1–S4 above, named after the screens.</li>
+          <li><strong>At least 3 patterns visibly implemented</strong> — this design gives you 15; in Figma, annotate each with a small numbered badge, not just a text label.</li>
+          <li><strong>Justification table</strong> from this page pasted into your document — pattern, problem, where, why.</li>
+          <li><strong>Design system noted</strong> — colours, type scale and 8-pt spacing, as specified above.</li>
+          <li><strong>Your header</strong> — Rizwan Khan (0046, CS-A2), HCI and CG Practical, teacher Iqra Yousaf.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-top:2px;">Quick usability test (Lecture 21 methods)</h3>
+        <p>Run a 10-minute <strong>think-aloud</strong> test with 2–3 classmates and note where they hesitate:</p>
+        <ul>
+          <li><strong>Task 1:</strong> Find headphones under Rs 10,000 using only the tags.</li>
+          <li><strong>Task 2:</strong> Change the headphone colour and add it to the cart.</li>
+          <li><strong>Task 3:</strong> Complete checkout — at the payment step, ask “how many steps are left?” (Steps Left is working if they answer instantly).</li>
+          <li><strong>Task 4:</strong> Create an account with a weak password, then a strong one — did the meter change their choice?</li>
+        </ul>
+        <p style="margin-top:6px;">Record successes, errors and hesitations only — this is a test <em>plan</em>; fill in real results after you run it, don't invent them.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">
+    ShopEase is a coursework prototype for the HCI and CG Practical lab task “Implementing UI Design Patterns”. Product photos are illustrative catalogue images; prices are in PKR and no real orders are taken. Patterns and definitions follow Lecture 22 and Dix, Finlay, Abowd &amp; Beale (2004), Ch. 6.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s, c){ return (c||document).querySelector(s); };
+  var $$ = function(s, c){ return Array.prototype.slice.call((c||document).querySelectorAll(s)); };
+
+  /* ---------- Data ---------- */
+  var PRODUCTS = [
+    {name:"AuraSound Pro Headphones", price:"Rs 8,499", old:"Rs 10,999", img:"assets/headphones.jpg", alt:"AuraSound Pro wireless headphones", tags:["audio","under10"], tagline:"#Audio · Noise cancelling"},
+    {name:"StrideMax Running Sneakers", price:"Rs 6,299", old:"Rs 7,999", img:"assets/sneakers.jpg", alt:"StrideMax running sneakers", tags:["fitness","fashion","under10"], tagline:"#Fitness · Lightweight knit"},
+    {name:"PulseFit Smartwatch", price:"Rs 11,999", old:"", img:"assets/watch.png", alt:"PulseFit smartwatch", tags:["fitness"], tagline:"#Fitness · Heart-rate + GPS"},
+    {name:"Urban Leather Backpack", price:"Rs 9,750", old:"Rs 12,500", img:"assets/backpack.webp", alt:"Urban leather backpack", tags:["fashion","under10"], tagline:"#Fashion · Laptop sleeve"},
+    {name:"ClearPods Wireless Earbuds", price:"Rs 4,899", old:"Rs 6,499", img:"assets/earbuds.webp", alt:"ClearPods wireless earbuds with charging case", tags:["audio","under10"], tagline:"#Audio · 30-hour case"},
+    {name:"Metro Square Sunglasses", price:"Rs 3,450", old:"", img:"assets/sunglasses.jpg", alt:"Metro square sunglasses", tags:["fashion","under10"], tagline:"#Fashion · UV400"}
+  ];
+  var EXTRA = [
+    {name:"Everyday Canvas Tote", price:"Rs 1,899", old:"Rs 2,499", img:"assets/tote.webp", alt:"Everyday canvas tote bag", tags:["fashion","under10"], tagline:"#Fashion · Reusable canvas"},
+    {name:"AuraSound Pro — Teal Edition", price:"Rs 8,999", old:"", img:"assets/headphones.jpg", alt:"AuraSound Pro headphones in teal", tags:["audio","under10"], tagline:"#Audio · Limited colour"},
+    {name:"PulseFit Lite Band", price:"Rs 5,499", old:"Rs 6,999", img:"assets/watch.png", alt:"PulseFit Lite fitness band", tags:["fitness","under10"], tagline:"#Fitness · 14-day battery"}
+  ];
+
+  var PATTERNS = [
+    {id:"home-link", name:"Home Link", screen:"home", sel:'[data-pattern="home-link"]', problem:"The user needs to go back to a safe start location of the site.", use:"The ShopEase logo at the top of every screen is always tappable and returns to Home.", why:"Users often enter an app deep inside it (a shared product link, a notification). One familiar, always-visible way home removes the fear of getting lost — recognition instead of recall."},
+    {id:"carousel", name:"Carousel", screen:"home", sel:'[data-pattern="carousel"]', problem:"The user needs to browse through a set of items and possibly select one of them.", use:"“Featured today” shows three large product slides, one at a time, with dots and ‹ › controls.", why:"Featured products are highly visual, space is limited, and showing one at a time focuses attention while the dots tease that more exists — exactly the lecture's usage conditions."},
+    {id:"tag", name:"Tag", screen:"home", sel:'[data-pattern="tag"]', problem:"The user wants to find more data in the same category, and content can belong to several categories at once.", use:"Chips like #Audio, #Fitness and “Under Rs 10,000” filter the product grid instantly; products carry several tags at once.", why:"A headphone is both #Audio and Under Rs 10,000 — a single rigid hierarchy cannot express that. Tags match how shoppers actually think and let one item live in many groups."},
+    {id:"accordion", name:"Accordion Menu", screen:"home", sel:'[data-pattern="accordion"]', problem:"The user needs to navigate among main sections while still being able to quickly browse the subsections of another.", use:"Categories (Electronics, Fashion, Home & Living) expand in place to reveal sub-categories; only one stays open.", why:"Three main sections with sub-sections and no room for a full sidebar — the lecture's exact conditions (fewer than 10 sections, two levels). Expanding in place keeps context visible."},
+    {id:"thumbnail", name:"Thumbnail", screen:"home", sel:'[data-pattern="thumbnail"]', problem:"The user needs an overview of multiple pictures without downloading each full-size image.", use:"Every product is a small tappable photo card; on the product page, four colour thumbnails switch the large photo.", why:"Shoppers judge products visually in seconds. Small previews load fast, scan fast, and let the user decide what deserves a closer look before spending bandwidth or attention."},
+    {id:"continuous", name:"Continuous Scrolling", screen:"home", sel:'[data-pattern="continuous-scrolling"]', problem:"Content is a subset of a much larger set, and paging would pull attention away from browsing.", use:"“Load more products” extends the same grid in place — the shopper never leaves the page or loses their scroll position.", why:"Product browsing is a flow activity. Pagination forces a decision and a reload every 6 items; continuous loading keeps the eyes on products, which is the lecture's stated reason for the pattern."},
+    {id:"fat-footer", name:"Fat Footer", screen:"home", sel:'[data-pattern="fat-footer"]', problem:"The user needs to reach a specific section quickly, regardless of where they are in the hierarchy.", use:"The expanded footer at the bottom of Home groups Shop, Help and Company links in three columns.", why:"Track Order and Returns don't fit the shopping hierarchy but everyone needs them. The fat footer shortcuts the hierarchy — as secondary navigation only, never the main one, per the lecture."},
+    {id:"breadcrumbs", name:"Breadcrumbs", screen:"product", sel:'[data-pattern="breadcrumbs"]', problem:"The user needs to know their location in the site's hierarchy and be able to browse back up a level.", use:"Home › Audio › Headphones › AuraSound Pro sits above the product photo; every level except the last is tappable.", why:"Shoppers often land on a product page from a search or a shared link, deep in the hierarchy. Breadcrumbs show where they are and offer a one-tap step back — and they are deliberately not used on the Home page itself."},
+    {id:"vote", name:"Vote to Promote", screen:"product", sel:'[data-pattern="vote"]', problem:"Users want to democratically decide which content is most popular or useful.", use:"Each review has a “▲ Helpful” vote with a live count; the most-voted review is shown first. Try voting.", why:"A store has hundreds of reviews; votes surface the trustworthy ones without the seller choosing. It needs a large community to be meaningful — which a marketplace has, and a personal blog would not."},
+    {id:"steps-left", name:"Steps Left", screen:"checkout", sel:'[data-pattern="steps-left"]', problem:"The user is about to fill in data over several steps and needs guidance so the process doesn't feel endless.", use:"Checkout always shows “Step N of 3 — X steps left” with a progress bar. Use Continue/Back and watch it change.", why:"Abandoned checkouts usually die from uncertainty, not difficulty. A visible finish line turns an open-ended form into a short, known journey — used here because there are 3 steps, not 1–2."},
+    {id:"good-defaults", name:"Good Defaults", screen:"checkout", sel:'[data-pattern="good-defaults"]', problem:"The user must enter data where some options are what most users would choose anyway.", use:"City is pre-filled (Lahore, from the last order), Standard delivery and Cash on Delivery are pre-selected and labelled DEFAULT.", why:"The system can make qualified guesses — most local shoppers choose COD and standard delivery. Pre-selecting them removes two decisions, while keeping them changeable. It is not used for anything the user must consciously agree to, like terms."},
+    {id:"input-feedback", name:"Input Feedback", screen:"checkout", sel:'[data-pattern="input-feedback"]', problem:"The user has entered data and expects feedback on the result of that submission.", use:"The phone field validates as you type, and placing an order produces an immediate confirmation panel with order number and delivery estimate.", why:"Silence after an action reads as failure. Instant, specific feedback — success or a fixable error, in place — closes the gulf of evaluation: the user always knows what the system did with their input."},
+    {id:"lazy", name:"Lazy Registration", screen:"account", sel:'[data-pattern="lazy-registration"]', problem:"The user wants to use the site immediately, without a formal registration first.", use:"ShopEase lets guests browse, compare and fill a cart; the account is only requested at the point it adds value, and the guest cart is carried over.", why:"Asking for personal data before showing any value is the biggest drop-off in e-commerce. Letting users try first lets them compare and decide — registration becomes a reward, not a toll gate."},
+    {id:"password-meter", name:"Password Strength Meter", screen:"account", sel:'[data-pattern="password-meter"]', problem:"The system needs users to choose passwords that are hard to break or guess.", use:"The meter fills and recolours as you type, with a live checklist (length, mixed case, number/symbol). Try “shop123”, then a longer mixed password.", why:"“Choose a strong password” is unactionable advice. A meter turns an invisible quality into visible feedback at the exact moment of typing, nudging behaviour without blocking the user."},
+    {id:"captcha", name:"Captcha", screen:"account", sel:'[data-pattern="captcha"]', problem:"The application must verify that submitted data comes from a human, not a robot.", use:"An “I'm not a robot” check must pass before the account can be created; the form explains itself if you try without it.", why:"Account creation is open to anonymous visitors (thanks to Lazy Registration), so it is exactly where bots attack. A lightweight check raises the barrier for robots while staying one tap for humans."}
+  ];
+
+  /* ---------- Screen switching ---------- */
+  var scrollBox = $("#phoneScroll");
+  function gotoScreen(name){
+    $$(".screen").forEach(function(s){ s.classList.remove("active"); });
+    var el = $("#screen-"+name); if(el) el.classList.add("active");
+    $$(".phone-nav button").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-goto")===name); });
+    scrollBox.scrollTop = 0;
+    if(name==="checkout") setStep(1);
+  }
+  $$("[data-goto]").forEach(function(b){
+    b.addEventListener("click", function(e){ e.preventDefault(); gotoScreen(b.getAttribute("data-goto")); });
+  });
+  $$("[data-open-product]").forEach(function(b){
+    b.addEventListener("click", function(e){ e.preventDefault(); gotoScreen("product"); });
+  });
+
+  /* ---------- Toast / Input Feedback ---------- */
+  var toastTimer = null;
+  function toast(msg){
+    var t = $("#toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 3400);
+  }
+
+  /* ---------- Search feedback ---------- */
+  function doSearch(){
+    var q = $("#searchInput").value.trim();
+    var fb = $("#searchFb");
+    if(!q){ fb.className = "fb err"; fb.textContent = "Type something first — e.g. “headphones”."; return; }
+    fb.className = "fb ok"; fb.textContent = "Showing results for “"+q+"” — try the tags below to narrow them down.";
+    toast("Search: “"+q+"” — 6 products found.");
+  }
+  $("#searchBtn").addEventListener("click", doSearch);
+  $("#searchInput").addEventListener("keydown", function(e){ if(e.key==="Enter") doSearch(); });
+
+  /* ---------- Carousel ---------- */
+  var car = $("#carousel"), carIdx = 0;
+  function carGo(i){
+    carIdx = Math.max(0, Math.min(2, i));
+    car.scrollTo({left: carIdx * (car.clientWidth*0.88), behavior:"smooth"});
+    $$("#carDots .dot").forEach(function(d,di){ d.classList.toggle("on", di===carIdx); });
+  }
+  $("#carNext").addEventListener("click", function(){ carGo(carIdx+1); });
+  $("#carPrev").addEventListener("click", function(){ carGo(carIdx-1); });
+  car.addEventListener("scroll", function(){
+    var i = Math.round(car.scrollLeft / (car.clientWidth*0.88));
+    if(i!==carIdx){ carIdx=i; $$("#carDots .dot").forEach(function(d,di){ d.classList.toggle("on", di===carIdx); }); }
+  });
+
+  /* ---------- Product grid + Tags + Continuous Scrolling ---------- */
+  var grid = $("#productGrid"), loaded = false;
+  function cardHTML(p){
+    return '<button class="p-card" data-open-product><img src="'+p.img+'" alt="'+p.alt+'" loading="lazy" />'+
+      '<span class="p-info" style="display:block;"><span class="p-name" style="display:block;">'+p.name+'</span>'+
+      '<span class="p-price" style="display:block;">'+p.price+(p.old?'<s>'+p.old+'</s>':'')+'</span>'+
+      '<span class="p-tagline" style="display:block;">'+p.tagline+'</span></span></button>';
+  }
+  function renderGrid(list){
+    grid.innerHTML = list.map(cardHTML).join("");
+    $$("[data-open-product]", grid).forEach(function(b){ b.addEventListener("click", function(){ gotoScreen("product"); }); });
+  }
+  renderGrid(PRODUCTS);
+  $$("#tagRow .tag-chip").forEach(function(chip){
+    chip.addEventListener("click", function(){
+      $$("#tagRow .tag-chip").forEach(function(c){ c.classList.remove("on"); });
+      chip.classList.add("on");
+      var t = chip.getAttribute("data-tag");
+      var all = loaded ? PRODUCTS.concat(EXTRA) : PRODUCTS;
+      renderGrid(t==="all" ? all : all.filter(function(p){ return p.tags.indexOf(t)>-1; }));
+      if(t!=="all") toast("Tag filter: "+chip.textContent+" — grid updated in place.");
+    });
+  });
+  $("#loadMore").addEventListener("click", function(){
+    if(loaded) return;
+    loaded = true;
+    var active = $("#tagRow .tag-chip.on").getAttribute("data-tag");
+    var all = PRODUCTS.concat(EXTRA);
+    renderGrid(active==="all" ? all : all.filter(function(p){ return p.tags.indexOf(active)>-1; }));
+    $("#loadMore").style.display = "none";
+    $("#endNote").style.display = "block";
+    toast("3 more products loaded — no new page, no lost place.");
+  });
+
+  /* ---------- Accordion ---------- */
+  $$(".acc-item").forEach(function(item){
+    $(".acc-head", item).addEventListener("click", function(){
+      var wasOpen = item.classList.contains("open");
+      $$(".acc-item").forEach(function(i){ i.classList.remove("open"); });
+      if(!wasOpen) item.classList.add("open");
+    });
+  });
+
+  /* ---------- Product page: thumbnails + vote + cart ---------- */
+  $$("#thumbRow .thumb").forEach(function(th){
+    th.addEventListener("click", function(){
+      $$("#thumbRow .thumb").forEach(function(t){ t.classList.remove("on"); });
+      th.classList.add("on");
+      var img = $("#heroImg"); img.style.filter = th.getAttribute("data-filter");
+      toast("Colour changed — same page, no reload (Thumbnail pattern).");
+    });
+  });
+  $$("[data-vote]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var wrap = btn.parentElement, num = $(".vnum", wrap);
+      if(btn.classList.contains("voted")){ btn.classList.remove("voted"); num.textContent = parseInt(num.textContent,10)-1; }
+      else { btn.classList.add("voted"); num.textContent = parseInt(num.textContent,10)+1; toast("Vote counted — helpful reviews rise to the top."); }
+    });
+  });
+  var cart = 2;
+  $("#addToCart").addEventListener("click", function(){
+    cart++; $("#cartCount").textContent = cart;
+    toast("✓ Added to cart — AuraSound Pro (Silver). Cart now has "+cart+" items.");
+  });
+
+  /* ---------- Checkout: Steps Left + Good Defaults + feedback ---------- */
+  var step = 1;
+  function setStep(n){
+    step = n;
+    $$(".step-pane").forEach(function(p){ p.classList.toggle("active", parseInt(p.getAttribute("data-step"),10)===n); });
+    var left = 3 - n;
+    $("#stepsLabel").innerHTML = "Step "+n+" of 3 — <span>"+(left===0 ? "last step — nearly done!" : left+(left===1?" step":" steps")+" left")+"</span>";
+    $$("#stepsBar i").forEach(function(bar,i){
+      bar.className = i < n-1 ? "done" : (i===n-1 ? "now" : "");
+    });
+    scrollBox.scrollTop = 0;
+  }
+  var phoneInput = $("#fPhone"), phoneFb = $("#phoneFb");
+  function checkPhone(showOk){
+    var v = phoneInput.value.replace(/[\s-]/g,"");
+    var ok = /^03\d{9}$/.test(v);
+    if(!phoneInput.value.trim()){ phoneFb.className="fb"; phoneInput.className=""; return false; }
+    phoneFb.className = "fb " + (ok ? "ok" : "err");
+    phoneFb.textContent = ok ? "✓ Looks good — we'll send order updates here." : "Enter an 11-digit mobile number starting with 03.";
+    phoneInput.className = ok ? "ok" : "err";
+    return ok;
+  }
+  phoneInput.addEventListener("input", function(){ checkPhone(true); });
+  $("#toStep2").addEventListener("click", function(){
+    if(!checkPhone(true)){ toast("One fix needed: check the mobile number."); phoneInput.focus(); return; }
+    setStep(2);
+  });
+  $$(".radio-card input").forEach(function(r){
+    r.addEventListener("change", function(){
+      $$('input[name="'+r.name+'"]').forEach(function(o){ o.closest(".radio-card").classList.toggle("sel", o.checked); });
+    });
+  });
+  $("#toStep3").addEventListener("click", function(){ setStep(3); });
+  $$("[data-stepback]").forEach(function(b){ b.addEventListener("click", function(){ setStep(Math.max(1, step-1)); }); });
+  $("#placeOrder").addEventListener("click", function(){
+    $("#orderSuccess").style.display = "block";
+    toast("Order #SE-2041 placed — confirmation sent.");
+  });
+
+  /* ---------- Account: email feedback, password meter, captcha ---------- */
+  var email = $("#accEmail"), emailFb = $("#emailFb");
+  email.addEventListener("input", function(){
+    var v = email.value.trim();
+    if(!v){ emailFb.className="fb"; email.className=""; return; }
+    var ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+    emailFb.className = "fb " + (ok ? "ok" : "err");
+    emailFb.textContent = ok ? "✓ Valid email — receipts will go here." : "That doesn't look like an email yet — it needs an @ and a domain.";
+    email.className = ok ? "ok" : "err";
+  });
+  var pw = $("#accPw"), pwBar = $("#pwBar"), pwLabel = $("#pwLabel");
+  pw.addEventListener("input", function(){
+    var v = pw.value, score = 0;
+    var len = v.length>=8, mix = /[a-z]/.test(v) && /[A-Z]/.test(v), num = /[\d\W]/.test(v);
+    if(len) score++; if(mix) score++; if(num) score++; if(v.length>=13) score++;
+    $("#ruleLen").classList.toggle("hit", len);
+    $("#ruleMix").classList.toggle("hit", mix);
+    $("#ruleNum").classList.toggle("hit", num);
+    var states = [
+      {w:"4%", c:"#b3372a", t:"Start typing — we'll show how strong it is."},
+      {w:"28%", c:"#b3372a", t:"Weak — add length or variety."},
+      {w:"52%", c:"#d98a00", t:"Fair — getting there."},
+      {w:"78%", c:"#7aa600", t:"Strong — hard to guess."},
+      {w:"100%", c:"#0b6b5a", t:"Very strong — excellent choice."}
+    ];
+    var s = states[v.length===0 ? 0 : Math.max(1, score)];
+    pwBar.style.width = s.w; pwBar.style.background = s.c; pwLabel.textContent = s.t; pwLabel.style.color = s.c;
+  });
+  var capCheck = $("#captchaCheck"), capBox = $("#captchaBox"), capState = $("#capState"), capFb = $("#capFb");
+  capCheck.addEventListener("change", function(){
+    if(capCheck.checked){
+      capState.textContent = "Verifying…";
+      setTimeout(function(){
+        capBox.classList.add("verified"); capState.innerHTML = "✓ Verified<br />human";
+        capFb.className = "fb ok"; capFb.textContent = "✓ Human check passed — you can create your account now.";
+      }, 650);
+    } else {
+      capBox.classList.remove("verified"); capState.innerHTML = "CAPTCHA<br />check"; capFb.className = "fb";
+    }
+  });
+  $("#createAccount").addEventListener("click", function(){
+    if(!capCheck.checked || !capBox.classList.contains("verified")){
+      capFb.className = "fb err"; capFb.textContent = "Please tick “I'm not a robot” first — this keeps bots from creating fake accounts.";
+      toast("Captcha check needed before creating the account."); return;
+    }
+    if(pw.value.length < 8){ toast("Password needs at least 8 characters — watch the meter."); pw.focus(); return; }
+    $("#accSuccess").style.display = "block";
+    toast("Account created — your guest cart was saved.");
+  });
+
+  /* ---------- Pattern Explorer + justification table ---------- */
+  var grid2 = $("#explorerGrid"), detail = $("#explorerDetail");
+  PATTERNS.forEach(function(p, i){
+    var b = document.createElement("button");
+    b.innerHTML = (i+1)+". "+p.name + "<small>Screen: "+p.screen+"</small>";
+    b.addEventListener("click", function(){
+      $$("#explorerGrid button").forEach(function(x){ x.classList.remove("active"); });
+      b.classList.add("active");
+      gotoScreen(p.screen);
+      $("#exWhere").textContent = "Pattern "+(i+1)+" of 15 · Find it on the "+p.screen+" screen · highlighted in the phone";
+      $("#exName").textContent = p.name;
+      $("#exProblem").textContent = p.problem;
+      $("#exUse").textContent = p.use;
+      $("#exWhy").textContent = p.why;
+      detail.classList.add("show");
+      setTimeout(function(){
+        var target = $(p.sel);
+        if(target){
+          target.scrollIntoView({block:"center", behavior:"smooth"});
+          setTimeout(function(){
+            target.classList.add("hl");
+            setTimeout(function(){ target.classList.remove("hl"); }, 3200);
+          }, 380);
+        }
+      }, 60);
+      if(window.innerWidth <= 900){ $(".phone").scrollIntoView({behavior:"smooth", block:"start"}); }
+    });
+    grid2.appendChild(b);
+  });
+
+  var tbody = $("#justBody");
+  PATTERNS.forEach(function(p, i){
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td><strong>"+(i+1)+". "+p.name+"</strong></td><td>"+p.problem+"</td><td><span class='where'>"+p.use+"</span></td><td>"+p.why+"</td>";
+    tbody.appendChild(tr);
+  });
+})();
+</script>
+</body>
+</html>
